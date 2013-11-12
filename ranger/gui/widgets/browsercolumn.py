@@ -229,6 +229,7 @@ class BrowserColumn(Pager):
         copied = [f.path for f in self.fm.copy_buffer]
 
         selected_i = self.target.pointer
+        line_no    = selected_i - self.scroll_begin
         for line in range(self.hei):
             i = line + self.scroll_begin
             if line > self.hei:
@@ -249,12 +250,18 @@ class BrowserColumn(Pager):
                     drawn.path in copied, tagged_marker, drawn.infostring,
                     drawn.vcsfilestatus, drawn.vcsremotestatus, self.fm.do_cut)
 
-            if key in drawn.display_data:
+            if key in drawn.display_data and \
+                    not self.settings.relative_line_num:
                 self.execute_curses_batch(line, drawn.display_data[key])
                 self.color_reset()
                 continue
 
             text = drawn.basename
+
+            if self.settings.relative_line_num:
+                line_no = abs(selected_i-line-self.scroll_begin) or selected_i + 1
+                text = str(line_no) + " " + text
+
             if drawn.marked and (self.main_column or \
                     self.settings.display_tags_in_all_columns):
                 text = " " + text
