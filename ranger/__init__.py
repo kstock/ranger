@@ -54,4 +54,18 @@ def log_traceback():
     import traceback
     traceback.print_stack(file=open(LOGFILE, 'a'))
 
+import logging
+
+fname = '/home/kstock/plugins/ranger/foo.log'
+logging.basicConfig(filename=fname,level=logging.DEBUG)
+logger = logging.getLogger(fname)
+# Configure logger to write to a file...
+
+def my_handler(typ, value, tb):
+    '''force all uncaught exceptions go to logger'''
+    logger.exception("Uncaught exception: {0}".format(str(value)))
+
+# Install exception handler
+sys.excepthook = my_handler
+
 from ranger.core.main import main
