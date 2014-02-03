@@ -1,4 +1,10 @@
 *~
 *.pyc
 *.pyo
+*.log
+*.jpg
+*.gif
+*.png
 stuff/*
+ranger/ext/foo.py
+test.py
