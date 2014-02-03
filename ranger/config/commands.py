@@ -77,6 +77,7 @@
 # ===================================================================
 
 from ranger.api.commands import *
+import logging
 
 class alias(Command):
     """:alias <newcommand> <oldcommand>
@@ -1242,3 +1243,31 @@ class log(Command):
 
         pager = os.environ.get('PAGER', ranger.DEFAULT_PAGER)
         self.fm.run([pager, tmp.name])
+
+class tmsu(Command):
+    """:tmsu
+    tag filtering
+    """
+
+    def execute(self):
+
+        cwd = self.fm.thisdir
+        tags = self.rest(1)
+        logging.debug(tags)
+        if not tags:
+            cwd.tag_filter = set()
+        else:#TODO display relevant error msgs
+            matching_files = subprocess.check_output('tmsu files %s | ack-grep -v /home' % tags,shell=True)
+
+            if not matching_files:#edge case, need to filter everything!
+                cwd.tag_filter = None
+                cwd.refilter()
+                return
+
+            matching_files = [f for f in matching_files.split('\n') if f]
+            logging.debug(matching_files)
+            cwd.tag_filter = set( matching_files )
+            logging.debug(cwd.tag_filter)
+
+        cwd.refilter()
+

@@ -3,6 +3,7 @@
 
 import os.path
 import re
+import logging
 
 from os import stat as os_stat, lstat as os_lstat
 from collections import deque
@@ -42,6 +43,12 @@ def accept_file(fname, directory, hidden_filter, name_filter):
         return False
     if directory.temporary_filter and not directory.temporary_filter.search(fname):
         return False
+    if directory.tag_filter and os.path.basename(fname) not in directory.tag_filter:
+        logging.debug(fname)
+        return False
+    if directory.tag_filter == None:#edge case, if no files matched dont show any
+        return False
+
     return True
 
 class Directory(FileSystemObject, Accumulator, Loadable):
@@ -57,6 +64,7 @@ class Directory(FileSystemObject, Accumulator, Loadable):
     files_all = None
     filter = None
     temporary_filter = None
+    tag_filter = set()
     marked_items = None
     scroll_begin = 0
 
